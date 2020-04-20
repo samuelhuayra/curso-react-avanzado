@@ -6,7 +6,8 @@ const resolvers = require('./db/resolvers')
 //Servidor
 const server = new ApolloServer({
     typeDefs,
-    resolvers
+    resolvers,
+    context: ()=>({miContext:"hola"}) //Aqui podemos enviar la info del Usuario
 });
 
 
