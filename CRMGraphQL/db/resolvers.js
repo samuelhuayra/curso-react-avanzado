@@ -20,16 +20,7 @@ const cursos = [
 //Resolver
 const resolvers = {
     Query:{
-        obtenerCursos:(
-            _,//Objeto que contine los resultados del resolver padre
-            {input}, //input
-            ctx,//Context, información que se comparte entre todos los resolvers EJ:auth
-            info, //Tiene info sobre la consulta actual
-        )=> {
-            console.log(ctx);
-            return cursos.filter(curso=> curso.tecnologia === input.tecnologia)
-        }, //Curso[0] //Solo 1 Curso //Arrays
-        //obtenerTecnologia:()=>cursos
+        obtenerCurso: ()=>"algo"
     }
 }
 module.exports = resolvers;
