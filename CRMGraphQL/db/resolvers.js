@@ -90,7 +90,56 @@ const resolvers = {
 
             return pedido
         },
-        obtenerPedidoEstado:async(_,{estado},ctx)=> await Pedido.find({vendedor:ctx.usuario.id,estado})
+        obtenerPedidoEstado:async(_,{estado},ctx)=> await Pedido.find({vendedor:ctx.usuario.id,estado}),
+        mejoresClientes:async()=>{
+            return await Pedido.aggregate([
+                {$match:{estado: 'COMPLETADO'}}, //Where
+                { $group:{
+                    _id:"$cliente",             //Group by
+                    total:{ $sum: '$total'}     //Sum
+                }},
+                {
+                    $lookup:{                    //Join
+                        from: 'clientes',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as:'cliente'
+                    }
+                },
+                {
+                    $limit: 3
+                },
+                {
+                    $sort: { total : -1}            //sort by desc
+                }
+            ])
+        },
+        mejoresVendedores:async()=>{
+            return await Pedido.aggregate([
+                {$match:{estado: 'COMPLETADO'}}, //Where
+                { $group:{
+                    _id:"$vendedor",             //Group by
+                    total:{ $sum: '$total'}     //Sum
+                }},
+                {
+                    $lookup:{                    //Join
+                        from: 'usuarios',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as:'vendedor'             //SE inyecta al type
+                    }
+                },
+                {
+                    $limit: 3
+                },
+                {
+                    $sort: { total : -1}            //sort by desc
+                }
+            ])
+        },
+        buscarProducto:async(_,{texto})=>{
+            return await Producto.find({ $text: { $search: texto}}).limit(10)  // text: Indice busqueda rapida
+        }
     },
     Mutation:{
         nuevoUsuario: async(_,{input})=>{

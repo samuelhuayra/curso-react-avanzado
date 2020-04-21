@@ -22,5 +22,6 @@ const ProductosSchema = mongoose.Schema({
     }
 })
 
+ProductosSchema.index({nombre:'text'}) // text: Indice busqueda rapida
 
 module.exports = mongoose.model('Producto',ProductosSchema)
