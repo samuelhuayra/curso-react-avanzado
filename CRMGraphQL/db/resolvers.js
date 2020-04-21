@@ -21,23 +21,48 @@ const crearToken = (usuario,secreta,expiresIn)=>{
 const resolvers = {
     Query:{
         obtenerUsuario: async(_,{token})=>{
-            const usuarioId = await jwt.verify(token,process.env.SECRETA)
-            return usuarioId;
+            try {
+                return jwt.verify(token,process.env.SECRETA)
+            } catch (error) {
+                console.log(error);
+            }
         },
         obtenerProductos:async()=>{
             try {
-                const productos = await Producto.find({})
-                return productos
+                return await Producto.find({})
             } catch (error) {
-                
+                console.log(error);
             }
         },
         obtenerProducto: async(_,{id})=>{
-
             //Revisar si el existe
             const producto = await Producto.findById(id)
             if(!producto) throw new Error('Producto no encontrado')
             return producto
+        },
+        obtenerClientes: async()=>{
+            try {
+                return await Cliente.find({})
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        obtenerClientesVendedor: async(_,{},ctx)=>{
+            try {
+                return await Cliente.find({vendedor:ctx.usuario.id.toString()})
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        obtenerCliente:async(_,{id},ctx)=>{
+            //Revisar si el cliente existe o no
+            const cliente = await Cliente.findById(id)
+            if(!cliente) throw new Error('Cliente no encontrado')
+            
+            //Quien lo creó,puede verlo
+            if(cliente.vendedor.toString()!== ctx.usuario.id) throw new Error('No tienes las credenciales')
+
+            return cliente
         }
     },
     Mutation:{
@@ -53,7 +78,6 @@ const resolvers = {
             //Hashear el password
             const salt = await bcryptjs.genSalt(10)
             input.password = await bcryptjs.hash(password,salt)
-            console.log('>>',input);
 
             try {
                 //Guardar en la BD
@@ -134,6 +158,27 @@ const resolvers = {
             } catch (error) {
                 console.error(error)
             }
+        },
+        actualizarCliente:async(_,{id,input},ctx)=>{
+            //Verificar si existe
+            const cliente = await Cliente.findById(id)
+            if(!cliente) throw new Error('Cliente no existe')
+
+            // Si el vendedor es quien edita
+            if(cliente.vendedor.toString()!== ctx.usuario.id) throw new Error('No tienes las credenciales')
+            // Save
+            return await Cliente.findOneAndUpdate({_id:id},input,{new: true}) //New true para devolver el nuevo objeto
+        },
+        eliminarCliente:async(_,{id},ctx)=>{
+            //Verificar si existe
+            const cliente = await Cliente.findById(id)
+            if(!cliente) throw new Error('Cliente no existe')
+
+            // Si el vendedor es quien edita
+            if(cliente.vendedor.toString()!== ctx.usuario.id) throw new Error('No tienes las credenciales')
+            // Save
+            await Cliente.findOneAndDelete({_id:id})
+            return 'Cliente Eliminado.'
         }
     }
 }
