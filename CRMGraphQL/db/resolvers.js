@@ -1,5 +1,6 @@
 const Usuario = require('../models/Usuario')
 const Producto = require('../models/Producto')
+const Cliente = require('../models/Cliente')
 const bcryptjs = require('bcryptjs')
 require('dotenv').config({path: 'variables.env'})
 const jwt = require('jsonwebtoken')
@@ -81,23 +82,22 @@ const resolvers = {
             }
         },
         nuevoProducto:async(_,{input})=>{
+            
+            const producto = new Producto(input)
+
             try {
-                const producto = new Producto(input)
-
                 //Guardar
-                const resp = await producto.save()
-
-                return resp
+                return await producto.save()
             } catch (error) {
                 console.error(error)
             }
         },
-        actualizarProducto:async(_,{id,input})=>{
-            try {    
+        actualizarProducto:async(_,{id,input})=>{  
                 //Revisar si el existe
                 let producto = await Producto.findById(id)
                 if(!producto) throw new Error('Producto no encontrado')
 
+            try {
                 //Update
                 return await Producto.findOneAndUpdate({_id:id},input,{new: true}) //New true para devolver el nuevo objeto
 
@@ -106,14 +106,31 @@ const resolvers = {
             }
         },
         eliminarProducto:async(_,{id})=>{
-            try {    
                 //Revisar si el existe
                 let producto = await Producto.findById(id)
                 if(!producto) throw new Error('Producto no encontrado')
 
+            try {
                 //Update
                 await Producto.findByIdAndDelete({_id:id})
                 return "Producto eliminado."
+            } catch (error) {
+                console.error(error)
+            }
+        },
+        nuevoCliente:async(_,{input},ctx)=>{
+            
+                const {email} = input
+                //Verificar si el cliente ya esta creado
+                const cliente = await Cliente.findOne({email})
+                if(cliente) throw new Error('El cliente ya esta registrado')
+                
+                const nuevoCliente = new Cliente(input)
+                //asignar el vendedor
+                nuevoCliente.vendedor = ctx.usuario.id
+            try {
+                //Guardar
+                return await nuevoCliente.save()
             } catch (error) {
                 console.error(error)
             }
