@@ -12,6 +12,7 @@ const { gql } = require('apollo-server');
 //Schema
 const typeDefs = gql`
 
+    #Datos
     type Usuario {
         id: ID
         nombre: String
@@ -20,6 +21,11 @@ const typeDefs = gql`
         creado: String
     }
 
+    type Token {
+        token: String
+    }
+
+    #Inputs
     input UsuarioInput {
         nombre: String!
         apellido: String!
@@ -27,12 +33,20 @@ const typeDefs = gql`
         password: String!
     }
 
+    input AutenticarInput{
+        email: String!
+        password: String!
+    }
+
+    #Query
     type Query {
         obtenerCurso:String
     }
 
+    #Mutations
     type Mutation {
         nuevoUsuario(input: UsuarioInput):Usuario
+        autenticarUsuario(input: AutenticarInput):Token
     }
 
 `
