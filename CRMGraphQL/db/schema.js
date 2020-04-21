@@ -40,7 +40,7 @@ const typeDefs = gql`
 
     #Query
     type Query {
-        obtenerCurso:String
+        obtenerUsuario(token:String!): Usuario
     }
 
     #Mutations
