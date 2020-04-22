@@ -1,0 +1,9 @@
+npx create-next-app crmcliente <-crear nuevo proyect next 
+
+v Pick a template � Default starter app
+
+--TypeScript
+npm install -g typescript
+tsc init
+npm install --save-dev typescript @types/react @types/node
+cambiar archivo index.js a index.tsx
