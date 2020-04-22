@@ -1,10 +1,10 @@
 import Head from 'next/head'
 import Layout from '../components/layout'
-export default function Home() {
+export default function Productos() {
   return (
     <div>
       <Layout>
-        <h2>Desde Index</h2>
+      <h1 className="text-2xl text-gray-800 font-light">Productos</h1>
       </Layout>
     </div>
   )
